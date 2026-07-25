@@ -1,0 +1,136 @@
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #faf9f6;
+  font-family: 'Public Sans', Helvetica, Arial, sans-serif;
+  color: #17211f;
+}
+
+a {
+  color: #0d3f3a;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #e07a1f;
+}
+
+button {
+  font-family: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.stripe-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stripe-label {
+  font-family: 'IBM Plex Mono', monospace;
+  color: rgba(0, 0, 0, 0.33);
+  letter-spacing: 0.04em;
+}
+
+.info-popover-wrap {
+  position: relative;
+}
+
+.info-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+  background: #fff;
+  border: 1px solid #e2e5e1;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  width: 280px;
+}
+
+.info-popover-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #667069;
+  margin-bottom: 10px;
+}
+
+.info-popover-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #17211f;
+}
+
+.info-popover-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---- Responsive pass ---- */
+
+@media (max-width: 860px) {
+  .header-bar {
+    padding: 12px 16px !important;
+  }
+
+  .category-bar {
+    padding: 8px 16px !important;
+  }
+
+  .catalog-layout {
+    flex-direction: column;
+  }
+
+  .catalog-sidebar {
+    flex: 1 1 auto !important;
+    width: 100%;
+  }
+
+  .product-detail-page,
+  .cart-page {
+    padding: 20px 16px !important;
+  }
+
+  .product-detail-columns {
+    gap: 24px !important;
+  }
+
+  .cart-columns {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .catalog-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  .logo-img {
+    height: 40px !important;
+  }
+
+  .header-search {
+    order: 3;
+    flex: 1 1 100% !important;
+  }
+}
