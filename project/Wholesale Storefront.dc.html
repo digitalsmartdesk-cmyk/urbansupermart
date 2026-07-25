@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body{margin:0;background:#faf9f6;}
+    *{box-sizing:border-box;}
+    a{color:#0d3f3a;text-decoration:none;}
+    a:hover{color:#e07a1f;}
+    button{font-family:inherit;}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#faf9f6;font-family:'Public Sans',Helvetica,Arial,sans-serif;color:#17211f;">
+
+  <sc-if value="{{ dataLoaded }}" hint-placeholder-val="{{ false }}">
+  <div>
+
+    <header style="position:sticky;top:0;z-index:30;background:#ffffff;border-bottom:1px solid #e2e5e1;padding:14px 32px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;">
+      <div onClick="{{ goCatalog }}" style="cursor:pointer;display:flex;align-items:center;flex:0 0 auto;">
+        <img src="uploads/ChatGPT%20Image%20Jul%2025%2C%202026%2C%2009_28_21%20PM.png" alt="Urban SuperMart" style="height:56px;width:auto;display:block;">
+      </div>
+      <input value="{{ search }}" onChange="{{ setSearch }}" placeholder="Search SKUs, brands…" style="flex:1;min-width:200px;padding:9px 14px;border:1px solid #dfe3e0;border-radius:4px;font-size:14px;font-family:inherit;outline:none;background:#faf9f6;">
+      <button onClick="{{ goCart }}" style="position:relative;display:flex;align-items:center;gap:8px;padding:9px 16px;background:{{ accentColor }};color:#fff;border:none;border-radius:4px;font-weight:700;font-size:13px;cursor:pointer;flex:0 0 auto;">
+        Cart
+        <span style="background:#e07a1f;color:#fff;border-radius:10px;padding:1px 7px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;">{{ cartCount }}</span>
+      </button>
+    </header>
+
+    <div style="display:flex;gap:8px;padding:10px 32px;flex-wrap:wrap;background:#fcfbf9;border-bottom:1px solid #eeefec;">
+      <sc-for list="{{ categoryTabs }}" as="cat" hint-placeholder-count="6">
+        <button onClick="{{ cat.select }}" style="padding:7px 14px;border:1px solid #dfe3e0;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ cat.bg }};color:{{ cat.fg }};border-color:{{ cat.border }};">{{ cat.label }}</button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;gap:28px;padding:28px 32px;align-items:flex-start;flex-wrap:wrap;">
+      <aside style="flex:0 0 220px;min-width:220px;background:#fff;border:1px solid #e2e5e1;border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:22px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#667069;margin-bottom:10px;">Brand Type</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <sc-for list="{{ brandTypeTabs }}" as="bt" hint-placeholder-count="3">
+              <button onClick="{{ bt.select }}" style="text-align:left;padding:8px 10px;border:1px solid #e2e5e1;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;background:{{ bt.bg }};color:{{ bt.fg }};">{{ bt.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#667069;margin-bottom:10px;">Sort</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <sc-for list="{{ sortTabs }}" as="st" hint-placeholder-count="3">
+              <button onClick="{{ st.select }}" style="text-align:left;padding:8px 10px;border:1px solid #e2e5e1;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;background:{{ st.bg }};color:{{ st.fg }};">{{ st.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </aside>
+
+      <div style="flex:1;min-width:400px;">
+        <div style="margin-bottom:16px;font-size:13px;color:#667069;">{{ resultsCountLabel }}</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ gridMin }}px,1fr));gap:20px;">
+          <sc-for list="{{ filteredProducts }}" as="item" hint-placeholder-count="9">
+            <div onClick="{{ item.open }}" style="cursor:pointer;background:#fff;border:1px solid #e2e5e1;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+              <div style="aspect-ratio:1;background-image:repeating-linear-gradient(45deg,{{ item.stripeA }},{{ item.stripeA }} 10px,{{ item.stripeB }} 10px,{{ item.stripeB }} 20px);display:flex;align-items:center;justify-content:center;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#00000055;letter-spacing:0.04em;">PRODUCT PHOTO</span>
+              </div>
+              <div style="padding:14px;display:flex;flex-direction:column;gap:6px;flex:1;">
+                <span style="font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:3px 8px;border-radius:3px;width:fit-content;background:{{ item.badgeBg }};color:{{ item.badgeColor }};">{{ item.badgeLabel }}</span>
+                <sc-if value="{{ item.isUpcoming }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:10.5px;color:#8a4a10;background:#fbe7d3;padding:3px 8px;border-radius:3px;width:fit-content;">Add to unlock cart discount</span>
+                </sc-if>
+                <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.03em;color:#667069;margin-top:2px;">{{ item.brand }}</span>
+                <span style="font-size:14px;font-weight:600;line-height:1.3;">{{ item.name }}</span>
+                <span style="margin-top:auto;padding-top:6px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;color:{{ accentColor }};">{{ item.priceLabel }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:32px;max-width:1080px;margin:0 auto;">
+      <button onClick="{{ goCatalog }}" style="background:none;border:none;color:#667069;font-size:13px;cursor:pointer;padding:0 0 20px;">← Back to catalogue</button>
+      <div style="display:flex;gap:44px;flex-wrap:wrap;">
+        <div style="flex:1 1 360px;min-width:300px;">
+          <div style="aspect-ratio:1;border-radius:6px;background-image:repeating-linear-gradient(45deg,{{ detailStripeA }},{{ detailStripeA }} 12px,{{ detailStripeB }} 12px,{{ detailStripeB }} 24px);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#00000055;letter-spacing:0.04em;">PRODUCT PHOTO</span>
+          </div>
+        </div>
+        <div style="flex:1 1 360px;min-width:300px;display:flex;flex-direction:column;gap:12px;">
+          <span style="font-size:10.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:4px 9px;border-radius:3px;width:fit-content;background:{{ detailBadgeBg }};color:{{ detailBadgeColor }};">{{ detailBadgeLabel }}</span>
+          <span style="font-size:12px;text-transform:uppercase;letter-spacing:0.03em;color:#667069;">{{ detailBrand }}</span>
+          <h1 style="font-size:24px;margin:0;font-weight:700;">{{ detailName }}</h1>
+          <p style="font-size:14px;line-height:1.6;color:#4b5652;margin:0;">{{ detailDesc }}</p>
+
+          <div style="display:flex;align-items:baseline;gap:8px;padding-top:14px;margin-top:6px;border-top:1px solid #e2e5e1;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:26px;color:{{ accentColor }};">{{ detailPriceMain }}</span>
+            <span style="font-size:14px;color:#667069;">/ {{ detailUnit }}</span>
+          </div>
+          <div style="font-size:12.5px;color:#667069;">Minimum order quantity: {{ detailMoqLabel }}</div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#667069;">Number of Sets <span style="text-transform:none;font-weight:500;letter-spacing:0;color:#94a099;">(1 set = {{ detailMoqLabel }})</span></div>
+            <div style="display:flex;align-items:center;border:1px solid #dfe3e0;border-radius:4px;width:fit-content;">
+              <button onClick="{{ decDetailQty }}" disabled="{{ decDisabled }}" style="width:36px;height:36px;border:none;background:none;font-size:18px;font-weight:700;cursor:pointer;color:{{ decBtnColor }};">−</button>
+              <input value="{{ detailSetsInput }}" onChange="{{ setDetailSetsInput }}" onBlur="{{ commitDetailSetsInput }}" style="width:56px;height:36px;border:none;border-left:1px solid #dfe3e0;border-right:1px solid #dfe3e0;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;text-align:center;outline:none;background:none;">
+              <button onClick="{{ incDetailQty }}" disabled="{{ incDisabled }}" style="width:36px;height:36px;border:none;background:none;font-size:18px;font-weight:700;cursor:pointer;color:{{ incBtnColor }};">+</button>
+            </div>
+            <sc-if value="{{ atMaxSets }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:12px;color:#94a099;">Maximum {{ maxSetsLabel }} sets for this item</span>
+            </sc-if>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#4b5652;">= {{ detailUnitsLabel }}</div>
+          </div>
+
+          <div style="padding:12px 16px;background:#f4f6f4;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;">Total: {{ detailTotalLabel }}</div>
+
+          <sc-if value="{{ isEstablishedDetail }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ hasUpcomingInCart }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#e3f1ee;border:1px solid #c7ded9;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#0d3f3a;line-height:1.55;">
+                <sc-if value="{{ nextExists }}" hint-placeholder-val="{{ true }}">
+                  <span>You're currently at <strong>{{ tierPctLabel }} discount</strong> — add <strong>{{ nextAmountLabel }}</strong> more in upcoming-brand items to reach {{ nextTierPctLabel }}.</span>
+                </sc-if>
+                <sc-if value="{{ atMaxTier }}" hint-placeholder-val="{{ false }}">
+                  <span>You're at the maximum <strong>1.5% discount</strong> tier for this order.</span>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasUpcomingInCart }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fbe7d3;border:1px solid #f0d4ae;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#7a3e0d;line-height:1.55;">
+                Add an upcoming-brand item to unlock a cart-wide discount — <a href="#" onClick="{{ browseUpcomingClick }}" style="color:#7a3e0d;font-weight:700;text-decoration:underline;">browse upcoming brands</a>.
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ isUpcomingDetail }}" hint-placeholder-val="{{ false }}">
+            <div style="position:relative;background:#fbe7d3;border:1px solid #f0d4ae;border-radius:4px;padding:14px 16px;font-size:13.5px;color:#7a3e0d;line-height:1.55;">
+              <div style="display:flex;align-items:flex-start;gap:8px;">
+                <span style="flex:1;">Add alongside your established-brand order to earn a cart-wide discount.</span>
+                <button onClick="{{ toggleInfoDetail }}" style="flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:1px solid #7a3e0d;background:none;color:#7a3e0d;font-size:12px;font-weight:700;cursor:pointer;line-height:1;">i</button>
+              </div>
+              <sc-if value="{{ infoOpenDetail }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;right:0;top:calc(100% + 8px);z-index:10;background:#fff;border:1px solid #e2e5e1;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:16px;width:280px;">
+                  <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#667069;margin-bottom:10px;">Cart discount tiers</div>
+                  <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#17211f;">
+                    <div style="display:flex;justify-content:space-between;"><span>Upcoming &lt; 10%</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">0%</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span>10% – 19.9%</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">0.5%</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span>20% – 39.9%</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">1.0%</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span>40% and above</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">1.5%</span></div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <button onClick="{{ addCurrentToCart }}" style="padding:14px 20px;background:{{ accentColor }};color:#fff;border:none;border-radius:4px;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;">{{ addToCartLabel }}</button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isCart }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:32px;max-width:1200px;margin:0 auto;">
+      <h1 style="font-size:22px;margin:0 0 20px;">Your Order</h1>
+
+      <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #e2e5e1;border-radius:6px;padding:60px 20px;text-align:center;color:#667069;">
+          <div style="margin-bottom:16px;">Your cart is empty.</div>
+          <button onClick="{{ goCatalog }}" style="padding:10px 20px;background:{{ accentColor }};color:#fff;border:none;border-radius:4px;font-weight:700;font-size:14px;cursor:pointer;">Browse Catalogue</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="flex:2 1 480px;min-width:380px;display:flex;flex-direction:column;gap:12px;">
+          <sc-for list="{{ cartLines }}" as="line" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #e2e5e1;border-radius:6px;padding:14px 16px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:200px;">
+                <span style="font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:3px 8px;border-radius:3px;width:fit-content;display:inline-block;margin-bottom:6px;background:{{ line.badgeBg }};color:{{ line.badgeColor }};">{{ line.badgeLabel }}</span>
+                <div style="font-size:11px;text-transform:uppercase;color:#667069;">{{ line.brand }}</div>
+                <div style="font-size:14px;font-weight:600;">{{ line.name }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#667069;margin-top:2px;">{{ line.priceLabel }}</div>
+              </div>
+              <div style="display:flex;align-items:center;border:1px solid #dfe3e0;border-radius:4px;flex:0 0 auto;">
+                <button onClick="{{ line.dec }}" disabled="{{ line.decDisabled }}" style="width:30px;height:30px;border:none;background:none;font-size:16px;font-weight:700;cursor:pointer;color:{{ line.decBtnColor }};">−</button>
+                <div style="padding:0 12px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13.5px;min-width:36px;text-align:center;">{{ line.qty }}</div>
+                <button onClick="{{ line.inc }}" disabled="{{ line.incDisabled }}" style="width:30px;height:30px;border:none;background:none;font-size:16px;font-weight:700;cursor:pointer;color:{{ line.incBtnColor }};">+</button>
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;flex:0 0 auto;min-width:90px;text-align:right;">{{ line.lineTotalLabel }}</div>
+              <button onClick="{{ line.remove }}" style="flex:0 0 auto;background:none;border:none;color:#94a099;font-size:12.5px;cursor:pointer;text-decoration:underline;">Remove</button>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="flex:1 1 340px;min-width:300px;display:flex;flex-direction:column;gap:20px;">
+
+          <div style="background:#fff;border:1px solid #e2e5e1;border-radius:6px;padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;">
+              <span style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#667069;">Upcoming-Brand Share</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:16px;color:#e07a1f;">{{ upcomingPctLabel }}</span>
+            </div>
+            <div style="position:relative;height:10px;background:#eef0ed;border-radius:5px;margin:6px 0;">
+              <div style="position:absolute;left:0;top:0;height:100%;border-radius:5px;background:#e07a1f;width:{{ meterFillWidth }}%;"></div>
+              <div style="position:absolute;left:20%;top:-4px;bottom:-4px;width:2px;background:#b8bfba;"></div>
+              <div style="position:absolute;left:40%;top:-4px;bottom:-4px;width:2px;background:#b8bfba;"></div>
+              <div style="position:absolute;left:80%;top:-4px;bottom:-4px;width:2px;background:#b8bfba;"></div>
+            </div>
+            <div style="position:relative;height:16px;font-size:10px;color:#94a099;font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
+              <span style="position:absolute;left:20%;transform:translateX(-50%);">10%</span>
+              <span style="position:absolute;left:40%;transform:translateX(-50%);">20%</span>
+              <span style="position:absolute;left:80%;transform:translateX(-50%);">40%</span>
+            </div>
+            <div style="font-size:13px;color:#4b5652;line-height:1.5;">
+              <sc-if value="{{ nextExists }}" hint-placeholder-val="{{ true }}"><span>Add <strong>{{ nextAmountLabel }}</strong> more of upcoming-brand items to reach the next discount tier.</span></sc-if>
+              <sc-if value="{{ atMaxTier }}" hint-placeholder-val="{{ false }}"><span>You've reached the maximum 1.5% discount tier.</span></sc-if>
+            </div>
+          </div>
+
+          <div style="position:relative;background:{{ accentColor }};border-radius:6px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="color:#cfe6e1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Current Discount</span>
+              <button onClick="{{ toggleInfoCart }}" style="width:20px;height:20px;border-radius:50%;border:1px solid #cfe6e1;background:none;color:#cfe6e1;font-size:12px;font-weight:700;cursor:pointer;line-height:1;">i</button>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:28px;color:#f0902c;">{{ tierPctLabel }}</span>
+              <span style="color:#cfe6e1;font-size:12.5px;">(upcoming brands = {{ upcomingPctLabel }} of order)</span>
+            </div>
+            <sc-if value="{{ infoOpenCart }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;right:0;top:calc(100% + 8px);z-index:10;background:#fff;border:1px solid #e2e5e1;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:16px;width:280px;">
+                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#667069;margin-bottom:10px;">Cart discount tiers</div>
+                <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#17211f;">
+                  <div style="display:flex;justify-content:space-between;"><span>Upcoming &lt; 10%</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">0%</span></div>
+                  <div style="display:flex;justify-content:space-between;"><span>10% – 19.9%</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">0.5%</span></div>
+                  <div style="display:flex;justify-content:space-between;"><span>20% – 39.9%</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">1.0%</span></div>
+                  <div style="display:flex;justify-content:space-between;"><span>40% and above</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">1.5%</span></div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e2e5e1;border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:13.5px;color:#4b5652;">
+              <span>Subtotal</span><span style="font-family:'IBM Plex Mono',monospace;">{{ subtotalLabel }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13.5px;color:#e07a1f;">
+              <span>Discount</span><span style="font-family:'IBM Plex Mono',monospace;">−{{ discountAmountLabel }}</span>
+            </div>
+            <div style="border-top:1px solid #e2e5e1;margin:4px 0;"></div>
+            <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;">
+              <span>Total</span><span style="font-family:'IBM Plex Mono',monospace;">{{ finalTotalLabel }}</span>
+            </div>
+            <button style="margin-top:8px;padding:13px 20px;background:#17211f;color:#fff;border:none;border-radius:4px;font-weight:700;font-size:14px;cursor:pointer;">Proceed to Checkout</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+  </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:960},&quot;primaryAccent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#0d3f3a&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#0d3f3a&quot;,&quot;#11665c&quot;,&quot;#17211f&quot;,&quot;#8a4a10&quot;],&quot;section&quot;:&quot;Brand&quot;},&quot;compactCards&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+
+class Component extends DCLogic {
+  state = {
+    view: 'catalog',
+    productId: null,
+    cart: {},
+    detailSets: 1,
+    filterCategory: 'All',
+    filterBrandType: 'all',
+    filterSort: 'default',
+    search: '',
+    infoOpenDetail: false,
+    infoOpenCart: false,
+    addedFlash: false,
+    catalog: null,
+  };
+
+  componentDidMount() {
+    import('./products.js').then((m) => this.setState({ catalog: m }));
+  }
+
+  goCatalog = () => this.setState({ view: 'catalog' });
+  goCart = () => this.setState({ view: 'cart', infoOpenCart: false });
+  goProduct = (id) => {
+    const p = this.state.catalog.PRODUCTS.find((x) => x.id === id);
+    this.setState({ view: 'product', productId: id, detailSets: 1, infoOpenDetail: false });
+  };
+  selectCategory = (cat) => this.setState({ filterCategory: cat, view: 'catalog' });
+  selectBrandType = (bt) => this.setState({ filterBrandType: bt });
+  selectSort = (s) => this.setState({ filterSort: s });
+  setSearch = (e) => this.setState({ search: e.target.value });
+  browseUpcomingClick = (e) => { e.preventDefault(); this.setState({ filterBrandType: 'upcoming', view: 'catalog' }); };
+
+  incDetailQty = () => this.setState((s) => {
+    const p = s.catalog.PRODUCTS.find((x) => x.id === s.productId);
+    const cap = p ? this.maxSetsFor(p) : 10;
+    return { detailSets: Math.min(cap, s.detailSets + 1) };
+  });
+  decDetailQty = () => this.setState((s) => ({ detailSets: Math.max(1, s.detailSets - 1) }));
+  setDetailSetsInput = (e) => this.setState({ detailSetsDraft: e.target.value });
+  commitDetailSetsInput = () => this.setState((s) => {
+    const p = s.catalog.PRODUCTS.find((x) => x.id === s.productId);
+    const cap = p ? this.maxSetsFor(p) : 10;
+    const n = parseInt(s.detailSetsDraft, 10);
+    const clamped = isNaN(n) ? s.detailSets : Math.min(cap, Math.max(1, n));
+    return { detailSets: clamped, detailSetsDraft: null };
+  });
+  addCurrentToCart = () => {
+    this.setState((s) => {
+      const p = s.catalog.PRODUCTS.find((x) => x.id === s.productId);
+      const units = s.detailSets * (p ? p.moq : 1);
+      return { cart: { ...s.cart, [s.productId]: units }, addedFlash: true };
+    });
+    clearTimeout(this._flashTimer);
+    this._flashTimer = setTimeout(() => this.setState({ addedFlash: false }), 1600);
+  };
+  incCartQty = (id) => this.setState((s) => {
+    const p = s.catalog.PRODUCTS.find((x) => x.id === id);
+    const step = p ? p.moq : 1;
+    const cur = s.cart[id] || step;
+    return { cart: { ...s.cart, [id]: Math.min(step * 10, cur + step) } };
+  });
+  decCartQty = (id) => this.setState((s) => {
+    const p = s.catalog.PRODUCTS.find((x) => x.id === id);
+    const floor = p ? p.moq : 1;
+    const cur = s.cart[id] || floor;
+    return { cart: { ...s.cart, [id]: Math.max(floor, cur - floor) } };
+  });
+  removeCartLine = (id) => this.setState((s) => {
+    const cart = { ...s.cart };
+    delete cart[id];
+    return { cart };
+  });
+  toggleInfoDetail = () => this.setState((s) => ({ infoOpenDetail: !s.infoOpenDetail }));
+  toggleInfoCart = () => this.setState((s) => ({ infoOpenCart: !s.infoOpenCart }));
+
+  maxSetsFor(p) {
+    if (p.price < 100) return 15;
+    if (p.price < 300) return 10;
+    if (p.price < 700) return 8;
+    return 6;
+  }
+  badgeInfo(brandType) {
+    return brandType === 'established'
+      ? { bg: '#e3f1ee', color: '#0d3f3a', label: 'Established' }
+      : { bg: '#fbe7d3', color: '#8a4a10', label: 'Upcoming Brand' };
+  }
+  stripeColors(brandType) {
+    return brandType === 'established'
+      ? { a: '#eef6f4', b: '#e3f1ee' }
+      : { a: '#fdf1e4', b: '#fbe7d3' };
+  }
+
+  renderVals() {
+    const { catalog } = this.state;
+    if (!catalog) return { dataLoaded: false };
+    const { PRODUCTS, CATEGORIES, formatINR, getTierForPct, nextTierInfo } = catalog;
+    const accentColor = this.props.primaryAccent ?? '#0d3f3a';
+    const gridMin = (this.props.compactCards ?? false) ? 180 : 230;
+
+    const { filterCategory, filterBrandType, filterSort, search, productId, detailSets, cart, infoOpenDetail, infoOpenCart, addedFlash } = this.state;
+
+    const categoryTabs = ['All', ...CATEGORIES].map((name) => {
+      const active = name === filterCategory;
+      return { name, label: name, select: () => this.selectCategory(name), bg: active ? accentColor : '#fff', fg: active ? '#fff' : '#3a423e', border: active ? accentColor : '#dfe3e0' };
+    });
+    const brandTypeTabs = [
+      { key: 'all', label: 'All Brands' },
+      { key: 'established', label: 'Established' },
+      { key: 'upcoming', label: 'Upcoming Brand' },
+    ].map((t) => {
+      const active = t.key === filterBrandType;
+      return { ...t, select: () => this.selectBrandType(t.key), bg: active ? accentColor : '#fff', fg: active ? '#fff' : '#17211f' };
+    });
+    const sortTabs = [
+      { key: 'default', label: 'Default' },
+      { key: 'priceAsc', label: 'Price: Low to High' },
+      { key: 'priceDesc', label: 'Price: High to Low' },
+    ].map((t) => {
+      const active = t.key === filterSort;
+      return { ...t, select: () => this.selectSort(t.key), bg: active ? accentColor : '#fff', fg: active ? '#fff' : '#17211f' };
+    });
+
+    let list = PRODUCTS.slice();
+    if (filterCategory !== 'All') list = list.filter((p) => p.category === filterCategory);
+    if (filterBrandType !== 'all') list = list.filter((p) => p.brandType === filterBrandType);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter((p) => (p.brand + ' ' + p.name).toLowerCase().includes(q));
+    }
+    if (filterSort === 'priceAsc') list = list.slice().sort((a, b) => a.price - b.price);
+    if (filterSort === 'priceDesc') list = list.slice().sort((a, b) => b.price - a.price);
+
+    const filteredProducts = list.map((p) => {
+      const b = this.badgeInfo(p.brandType);
+      const s = this.stripeColors(p.brandType);
+      return { ...p, badgeBg: b.bg, badgeColor: b.color, badgeLabel: b.label, isUpcoming: p.brandType === 'upcoming', stripeA: s.a, stripeB: s.b, priceLabel: formatINR(p.price) + '/' + p.unit, open: () => this.goProduct(p.id) };
+    });
+    const resultsCountLabel = filteredProducts.length + ' SKUs';
+
+    const cp = PRODUCTS.find((p) => p.id === productId) || null;
+    const isEstablishedDetail = !!cp && cp.brandType === 'established';
+    const isUpcomingDetail = !!cp && cp.brandType === 'upcoming';
+    const detailBadge = cp ? this.badgeInfo(cp.brandType) : { bg: '', color: '', label: '' };
+    const detailStripe = cp ? this.stripeColors(cp.brandType) : { a: '#eee', b: '#eee' };
+    const detailMaxSets = cp ? this.maxSetsFor(cp) : 1;
+    const decDisabled = detailSets <= 1;
+    const incDisabled = cp ? detailSets >= detailMaxSets : false;
+    const detailUnits = cp ? detailSets * cp.moq : 0;
+
+    const cartLines = Object.entries(cart).map(([id, qty]) => {
+      const p = PRODUCTS.find((x) => x.id === id);
+      if (!p) return null;
+      const b = this.badgeInfo(p.brandType);
+      const lineTotal = p.price * qty;
+      const cap = this.maxSetsFor(p) * p.moq;
+      return { ...p, qty, lineTotal, lineTotalLabel: formatINR(lineTotal), badgeBg: b.bg, badgeColor: b.color, badgeLabel: b.label, decDisabled: qty <= p.moq, decBtnColor: qty <= p.moq ? '#c7ccc8' : '#17211f', incDisabled: qty >= cap, incBtnColor: qty >= cap ? '#c7ccc8' : '#17211f', dec: () => this.decCartQty(id), inc: () => this.incCartQty(id), remove: () => this.removeCartLine(id), priceLabel: formatINR(p.price) + '/' + p.unit };
+    }).filter(Boolean);
+
+    const cartCount = cartLines.length;
+    const cartEmpty = cartCount === 0;
+    const subtotal = cartLines.reduce((s, l) => s + l.lineTotal, 0);
+    const upcomingValue = cartLines.filter((l) => l.brandType === 'upcoming').reduce((s, l) => s + l.lineTotal, 0);
+    const totalValue = subtotal;
+    const upcomingPct = totalValue > 0 ? (upcomingValue / totalValue) * 100 : 0;
+    const tier = getTierForPct(upcomingPct);
+    const discountAmount = subtotal * (tier.pct / 100);
+    const finalTotal = subtotal - discountAmount;
+    const next = nextTierInfo(upcomingValue, totalValue);
+    const meterFillWidth = Math.min(upcomingPct, 50) / 50 * 100;
+
+    return {
+      dataLoaded: true,
+      accentColor,
+      gridMin,
+      goCatalog: this.goCatalog,
+      goCart: this.goCart,
+      search,
+      setSearch: this.setSearch,
+      cartCount,
+      categoryTabs,
+      brandTypeTabs,
+      sortTabs,
+      isCatalog: this.state.view === 'catalog',
+      isProduct: this.state.view === 'product',
+      isCart: this.state.view === 'cart',
+      resultsCountLabel,
+      filteredProducts,
+
+      detailStripeA: detailStripe.a,
+      detailStripeB: detailStripe.b,
+      detailBadgeBg: detailBadge.bg,
+      detailBadgeColor: detailBadge.color,
+      detailBadgeLabel: detailBadge.label,
+      detailBrand: cp ? cp.brand : '',
+      detailName: cp ? cp.name : '',
+      detailDesc: cp ? cp.desc : '',
+      detailPriceMain: cp ? formatINR(cp.price) : '',
+      detailUnit: cp ? cp.unit : '',
+      detailUnitPlural: cp ? cp.unit + 's' : '',
+      detailMoqLabel: cp ? cp.moq + ' ' + cp.unit + 's' : '',
+      detailSets,
+      detailSetsInput: this.state.detailSetsDraft != null ? this.state.detailSetsDraft : String(detailSets),
+      setDetailSetsInput: this.setDetailSetsInput,
+      commitDetailSetsInput: this.commitDetailSetsInput,
+      decDetailQty: this.decDetailQty,
+      incDetailQty: this.incDetailQty,
+      decDisabled,
+      incDisabled,
+      incBtnColor: incDisabled ? '#c7ccc8' : '#17211f',
+      decBtnColor: decDisabled ? '#c7ccc8' : '#17211f',
+      detailUnitsLabel: cp ? detailUnits + ' ' + cp.unit + 's' : '',
+      detailTotalLabel: cp ? formatINR(cp.price * detailUnits) : '',
+      maxSetsLabel: detailMaxSets,
+      atMaxSets: incDisabled,
+      isEstablishedDetail,
+      isUpcomingDetail,
+      hasUpcomingInCart: upcomingValue > 0,
+      nextExists: !!next,
+      atMaxTier: !next,
+      tierPctLabel: tier.pct.toFixed(1) + '%',
+      nextTierPctLabel: next ? next.nextDiscountPct.toFixed(1) + '%' : '',
+      nextAmountLabel: next ? formatINR(next.amountNeeded) : '',
+      browseUpcomingClick: this.browseUpcomingClick,
+      toggleInfoDetail: this.toggleInfoDetail,
+      infoOpenDetail,
+      addCurrentToCart: this.addCurrentToCart,
+      addToCartLabel: addedFlash ? 'Added to Cart ✓' : 'Add to Cart',
+
+      cartEmpty,
+      cartHasItems: !cartEmpty,
+      cartLines,
+      upcomingPctLabel: upcomingPct.toFixed(1) + '%',
+      meterFillWidth,
+      toggleInfoCart: this.toggleInfoCart,
+      infoOpenCart,
+      subtotalLabel: formatINR(subtotal),
+      discountAmountLabel: formatINR(discountAmount),
+      finalTotalLabel: formatINR(finalTotal),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
